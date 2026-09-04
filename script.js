@@ -20,7 +20,6 @@ async function iniciar() {
 
     iniciado = true;
 
-    // Remove tela inicial
     inicio.style.display = "none";
 
     try {
