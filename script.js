@@ -5,7 +5,7 @@ const musicInfo = document.getElementById("musicInfo");
 const fotos = [];
 
 for (let i = 1; i <= 16; i++) {
-    fotos.push(`fotos/foto${i}.jpg`);
+    fotos.push(`foto${i}.jpg`);
 }
 
 const musicas = {
@@ -95,7 +95,6 @@ function tocarMusica(numero) {
 
 document.addEventListener("keydown", (event) => {
 
-    // Número 1
     if (event.key === "1" || event.code === "Numpad1") {
         tocarMusica("1");
     }
