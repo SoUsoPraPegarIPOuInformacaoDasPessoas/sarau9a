@@ -1,54 +1,64 @@
-const slide = document.getElementById("slide");
-const startScreen = document.getElementById("startScreen");
-const musicInfo = document.getElementById("musicInfo");
-
-const fotos = [];
-
-for (let i = 1; i <= 16; i++) {
-    fotos.push(`foto${i}.jpg`);
-}
+const TOTAL_FOTOS = 16;
+const TEMPO_FOTO = 10000;
+const foto = document.getElementById("foto");
+const inicio = document.getElementById("inicio");
+const musicaAtual = document.getElementById("musicaAtual");
 
 const musicas = {
-    "1": document.getElementById("audio1"),
-    "2": document.getElementById("audio2"),
-    "3": document.getElementById("audio3")
+    "1": document.getElementById("musica1"),
+    "2": document.getElementById("musica2"),
+    "3": document.getElementById("musica3")
 };
 
-let fotoAtual = 0;
+let numeroFoto = 1;
 let iniciado = false;
+let intervaloFotos;
 
-function iniciar() {
+async function iniciar() {
 
     if (iniciado) return;
 
     iniciado = true;
 
-    startScreen.style.display = "none";
+    // Remove tela inicial
+    inicio.style.display = "none";
 
-    setInterval(() => {
-        proximaFoto();
-    }, 10000);
-
-    document.documentElement.requestFullscreen?.().catch(() => {});
-}
-
-function proximaFoto() {
-
-    fotoAtual++;
-
-    if (fotoAtual >= fotos.length) {
-        fotoAtual = 0;
+    try {
+        if (!document.fullscreenElement) {
+            await document.documentElement.requestFullscreen();
+        }
+    } catch (erro) {
+        console.log("Tela cheia bloqueada pelo navegador.");
     }
 
-    slide.style.opacity = "0";
+    intervaloFotos = setInterval(trocarFoto, TEMPO_FOTO);
+}
+
+function trocarFoto() {
+
+    foto.style.opacity = "0";
+
 
     setTimeout(() => {
 
-        slide.src = fotos[fotoAtual];
+        numeroFoto++;
 
-        slide.onload = () => {
-            slide.style.opacity = "1";
+        if (numeroFoto > TOTAL_FOTOS) {
+            numeroFoto = 1;
+        }
+
+        const novaFoto = `foto${numeroFoto}.jpg`;
+
+        foto.onload = function () {
+            foto.style.opacity = "1";
         };
+
+        foto.onerror = function () {
+            console.error("Não foi possível carregar:", novaFoto);
+            foto.style.opacity = "1";
+        };
+
+        foto.src = novaFoto;
 
     }, 800);
 }
@@ -59,60 +69,67 @@ function tocarMusica(numero) {
         iniciar();
     }
 
-    Object.values(musicas).forEach(audio => {
+    for (const musica of Object.values(musicas)) {
 
-        audio.pause();
-        audio.currentTime = 0;
+        musica.pause();
+        musica.currentTime = 0;
 
-    });
+    }
 
     const musica = musicas[numero];
 
-    if (!musica) return;
+    if (!musica) {
+        return;
+    }
+
+    musica.loop = true;
 
     musica.play()
         .then(() => {
 
-            musicInfo.textContent =
-                `🎵 Música ${numero}`;
+            musicaAtual.textContent = `🎵 Música ${numero}`;
 
-            musicInfo.classList.add("show");
-
-            setTimeout(() => {
-                musicInfo.classList.remove("show");
-            }, 2500);
+            musicaAtual.classList.add("mostrar");
 
         })
-        .catch(() => {
+        .catch((erro) => {
 
-            musicInfo.textContent =
-                `⚠️ Não foi possível tocar a música ${numero}`;
+            console.error("Erro ao tocar música:", erro);
 
-            musicInfo.classList.add("show");
+            musicaAtual.textContent =
+                "⚠️ O navegador bloqueou o áudio. Clique na tela e tente novamente.";
+
+            musicaAtual.classList.add("mostrar");
 
         });
 }
 
-document.addEventListener("keydown", (event) => {
+document.addEventListener("keydown", function(event) {
 
-    if (event.key === "1" || event.code === "Numpad1") {
+    if (event.key === "1") {
         tocarMusica("1");
     }
 
-    if (event.key === "2" || event.code === "Numpad2") {
+    else if (event.key === "2") {
         tocarMusica("2");
     }
 
-    if (event.key === "3" || event.code === "Numpad3") {
+    else if (event.key === "3") {
         tocarMusica("3");
     }
 
-    if (event.key === "Enter" && !iniciado) {
-        iniciar();
+    else if (event.key === "Enter") {
+
+        if (!iniciado) {
+            iniciar();
+        }
+
     }
 
 });
 
-startScreen.addEventListener("click", () => {
+inicio.addEventListener("click", function() {
+
     iniciar();
+
 });
