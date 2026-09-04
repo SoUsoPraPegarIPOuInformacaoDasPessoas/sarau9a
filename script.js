@@ -5,9 +5,9 @@ const inicio = document.getElementById("inicio");
 const musicaAtual = document.getElementById("musicaAtual");
 
 const musicas = {
-    "1": document.getElementById("musica1"),
-    "2": document.getElementById("musica2"),
-    "3": document.getElementById("musica3")
+    "1": document.getElementById("musica1.mp3"),
+    "2": document.getElementById("musica2.mp3"),
+    "3": document.getElementById("musica3.mp3")
 };
 
 let numeroFoto = 1;
